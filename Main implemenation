@@ -1,0 +1,368 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "Character.h"
+using namespace std;
+
+// size of complete_spell_list.txt
+const int SPELL_DOC_SIZE = 46;
+
+// -------------------------------------------------
+// Name: readInSpells
+// Parameters: pass-by-value string filename
+//             string array arr
+//             pass-by-value int arr_size
+// Returns: bool - true when successful, false otherwise
+// Purpose: Opens the file with filename and reads in spells line-by-line into the array arr of size arr_size
+// -------------------------------------------------
+bool readInSpells(string filename, string arr[], int arr_size)
+{
+    ifstream infile(filename);
+    if (!infile.is_open()) {
+        cout << "Failed to open file: " << filename << endl;
+        return false;
+    }
+
+    for (int i = 0; i < arr_size; i++) {
+        if (!(infile >> arr[i])) {
+            cout << "Failed to read spell from file." << endl;
+            break;
+        }
+    }
+
+    infile.close();
+    return true;
+}
+
+int main()
+{
+    /* YOU SHOULD NOT CHANGE CODE BELOW THIS LINE UNLESS TO UNCOMMENT IT */
+
+    // declare and initialize needed variables
+    string all_spells[SPELL_DOC_SIZE];
+    for (int i = 0; i < SPELL_DOC_SIZE; i++)
+        all_spells[i] = "Empty";
+    
+    string character_name = "";
+    string character_class = "";
+    int character_level, choice = 0;
+    bool makeAnother = false;
+
+    //Testing methods...
+    cout << "Testing readInSpells()..." << endl;
+    if (readInSpells("complete_spell_list.txt", all_spells, SPELL_DOC_SIZE))
+    {
+       cout << "Read in spells successfully" << endl << endl;
+    }
+
+    cout << "Testing constructor..." << endl;
+    Character magnus;
+    magnus.print();
+    cout << endl;
+
+    cout << "Testing parameterized constructor..." << endl;
+    Character merle("Merle", "Cleric", 1, true);
+    merle.generateSpellList(all_spells, SPELL_DOC_SIZE);
+    merle.print();
+    cout << endl;
+
+    cout << "Testing copy constructor..." << endl;
+    Character merle2(merle);
+    merle2.print();
+    cout << endl;
+
+    cout << "Testing setters..." << endl;
+    magnus.setName("Magnus");
+    magnus.setClassName("Fighter");
+    magnus.setIsCaster(false);
+    magnus.setLevel(3);
+    magnus.setStats(18, 14, 15, 10, 11, 12);
+    magnus.setSingleStat(Character::STR, 20);
+    magnus.generateHitPoints();
+    magnus.print();
+    cout << endl;
+
+   cout << "Testing saveCharacterSheet()..." << endl;
+    if (magnus.saveCharacterSheet())
+    {
+        cout << "Successfully saved character sheet." << endl << endl;
+   }
+
+    /* YOU SHOULD NOT CHANGE CODE ABOVE THIS LINE UNLESS TO UNCOMMENT IT*/
+
+    /* WHERE CHARACTER CREATOR BEGINS! */
+    /** YOUR CODE GOES BELOW! */
+    
+    //varibales used 
+    string editChoice; //variable for editing choice prompt
+    bool characterEdit = false; //variable to continue or end loop
+    string statChoice; //varibale for stat choices prompt
+    string response; //variable for add another prompt
+    // Welcome user
+    cout << "Welcome to a Dungeon and Dragons character simulator" << endl;
+    Character newCharacter;
+    do{
+        // Prompt user for character name
+        cout << "Enter your character's name: ";
+        cin >> character_name;
+        cout << endl;
+        
+        // Set Name 
+        newCharacter.setName(character_name);
+        
+        // Prompt user for character class
+        cout << "Enter your character's class: ";
+        cin >> character_class;
+        cout << endl;
+     
+        // Set class
+        newCharacter.setClassName(character_class);
+     
+        // Prompt user for character level
+        cout << "Please enter your character's level: ";
+        cin >> character_level;
+        cout << endl;
+     
+        // Set level
+        newCharacter.setLevel(character_level);
+        
+        // Now that level, class, and stats are known, generate the character's hit points
+        newCharacter.generateHitPoints();
+        newCharacter.generateRandomStats();
+        
+        do
+        {
+            // Print out the character
+            newCharacter.print();
+         
+            // Print menu
+            cout << endl;
+            cout << "\tMenu" << endl;
+            cout << "1: Change Stats and regenerate hit points" << endl;
+            cout << "2: Generate new spell list" << endl;
+            cout << "3: Move onto the next step" << endl;
+            cout << "Please choose option 1 - 3: ";
+            cin >> choice;
+            
+            //error-checking 
+            if(choice < 1 || choice > 3)
+            {
+                cout << "------------------------------------------------------" << endl;
+                cout << "Invalid choice, please review the menu and try again: " << endl;
+                cout << "------------------------------------------------------" << endl;
+                cin >> choice;
+                cout << endl;
+            }
+            
+            switch(choice)
+            {
+                // If they chose to change stats and regenerate hit points...
+                case 1:
+                {
+                    // Ask if user wants to generate random stats or enter stats
+                    cout << "Would you like to enter stats by hand or generate random stats(H for hand and R for random): ";
+                    cin >> statChoice;
+                  
+                    if(statChoice == "r" || statChoice == "R") //random stats 
+                    {
+                        newCharacter.generateRandomStats();
+                        newCharacter.generateHitPoints();
+                    }
+                   
+                   else //stats by hand
+                    {
+                        // Prompt user for stats
+                        cout << "Enter each stat choice please" << endl;
+                            
+                        // For each stat...get input...Check that the new score is valid...
+                            cout << "\tStrength: ";
+                            int strength;
+                            cin >> strength;
+                            cout << endl;
+                            
+                            if(strength < 1 || strength > 6)
+                            {
+                                cout << "------------------------------------------------------" << endl;
+                                cout << "Invalid, please input within range from 1 - 6: " << endl;
+                                cin >> strength;
+                                cout << "------------------------------------------------------" << endl;
+                            }
+                            newCharacter.setSingleStat(Character::STR, strength);
+                        
+                        
+                            cout << "\tDexterity: ";
+                            int dexterity;
+                            cin >> dexterity;
+                            cout << endl;
+                        
+                            if(dexterity < 1 || dexterity > 6)
+                            {
+                                cout << "------------------------------------------------------" << endl;
+                                cout << "Invalid, please input within range from 1 - 6: " << endl;
+                                cin >> dexterity;
+                                cout << "------------------------------------------------------" << endl;
+                            }
+                            newCharacter.setSingleStat(Character::DEX, dexterity);
+                        
+                            cout << "\tConstitution: ";
+                            int constitution;
+                            cin >> constitution;
+                            cout << endl;
+                        
+                            if(constitution < 1 || constitution > 6)
+                            {
+                                cout << "------------------------------------------------------" << endl;
+                                cout << "Invalid, please input within range from 1 - 6: " << endl;
+                                cin >> constitution;
+                                cout << "------------------------------------------------------" << endl;
+                            }
+                            newCharacter.setSingleStat(Character::CON, constitution);
+                        
+                            cout << "\tIntelligence: ";
+                            int intelligence;
+                            cin >> intelligence;
+                            cout << endl;
+                        
+                            if(intelligence < 1 || intelligence > 6)
+                            {
+                                cout << "------------------------------------------------------" << endl;
+                                cout << "Invalid, please input within range from 1 - 6: " << endl;
+                                cin >> intelligence;
+                                cout << "------------------------------------------------------" << endl;
+                            }
+                            newCharacter.setSingleStat(Character::INT, intelligence);
+                        
+                            cout << "\tWisdom: ";
+                            int wisdom;
+                            cin >> wisdom;
+                            cout << endl;
+                        
+                            if(wisdom < 1 || wisdom > 6)
+                            {
+                                cout << "------------------------------------------------------" << endl;
+                                cout << "Invalid, please input within range from 1 - 6: " << endl;
+                                cin >> wisdom;
+                                cout << "------------------------------------------------------" << endl;
+                            }
+                            newCharacter.setSingleStat(Character::WIS, wisdom);
+                        
+                            cout << "\tCharisma: ";
+                            int charisma;
+                            cin >> charisma;
+                            cout << endl;
+                    
+                            if(charisma < 1 || charisma > 6)
+                            {
+                                cout << "------------------------------------------------------" << endl;
+                                cout << "Invalid, please input within range from 1 - 6: " << endl;
+                                cin >> charisma;
+                                cout << "------------------------------------------------------" << endl;
+                            }
+                            newCharacter.setSingleStat(Character::CHA, charisma);
+                            // Set stats
+                            newCharacter.setStats(strength, dexterity, constitution, intelligence, wisdom, charisma);
+                            // Generate new hit points
+                            newCharacter.generateHitPoints();
+                    }
+                    break;
+                }      
+           
+                case 2: //generating a new spell list
+                {
+                    //checking iscaster status
+                    if(newCharacter.getIsCaster())
+                    {
+                        readInSpells("complete_spell_list.txt", all_spells, SPELL_DOC_SIZE);
+                        // generate a new spell list
+                        newCharacter.generateSpellList(all_spells, 10);
+                    }
+                    else //if not spell caster
+                    {
+                        cout << "------------------------------------------------------" << endl;
+                        cout << "Sorry only spell casters can generate spell lists" << endl;
+                        cout << "------------------------------------------------------" << endl;
+                    }
+                break;
+                }
+                
+                case 3: //move onto next step 
+                {
+                    cout << "Are you done editing this character?(Y for yes and N for no): ";
+                    cin >> editChoice;
+            
+                    //if statement to end or keep looping 
+                    if(editChoice == "y" || editChoice == "Y")
+                        characterEdit = true;
+                    if(editChoice == "n" || editChoice == "N")  
+                        characterEdit = false;
+                    break;
+                }
+            }
+        }while(characterEdit == false); // end of nested do while loop
+        
+        //SAVING OR RESETTING CHARACTER
+                // Prompt the user if they would like to save or scrap their character
+                cout << "Would you like to save the character or get rid of the character" << endl;
+                cout << "1: for saving the character" << endl;
+                cout << "2: for getting rid of the character" << endl;
+                cin >> choice;
+                
+                switch(choice)
+                {
+                    case 1:{ //saving character 
+                        newCharacter.saveCharacterSheet();
+        
+                        if(newCharacter.saveCharacterSheet())
+                            cout << "Sheet was saved successfully under your character name.txt" << endl; // success message 
+                        // otherwise...Print an error message
+                        else 
+                            cout << "Error with saving character sheet" << endl;
+                        break;
+                    }      
+        
+                    case 2:{ //starting over
+                        string SaveOrReset;
+                        cout << "Confirrm that you want to reset the character and start over(Y for yes and N for no): ";
+                        getline(cin, SaveOrReset);
+                   
+                        // if the user said yes...reset the character. . .repeat the loop
+                        if(SaveOrReset == "y" || SaveOrReset == "y")
+                        newCharacter.reset();
+                        makeAnother = true;
+                
+                        // otherwise (the user said no) don't repeat the loop
+                        if(SaveOrReset == "n" || SaveOrReset == "N")
+                        makeAnother = false;
+                        break;
+                    }
+                }     
+                        
+            // Prompt user to see if they want to make another character
+                cout << "Would you like to make another character? (Y for yes and N for no): ";
+                cin >> response;
+                
+                //error-checking 
+                if(response != "y" && response != "Y" && response != "n" && response != "N")
+                {
+                    cout << "------------------------------------------------------" << endl;
+                    cout << "Invalid response, please review the question: ";
+                    cin >> response;
+                    cout << "------------------------------------------------------" << endl;
+                }
+                
+                if (response == "y" || response == "Y") 
+                {
+                    makeAnother = true;
+                    characterEdit = true;
+                }
+                else    
+                    makeAnother = false;
+        
+    }while(makeAnother == true);   
+    
+    
+    cout << "Goodbye, thank you for participating!" << endl;
+    
+    
+    return 0;
+}
