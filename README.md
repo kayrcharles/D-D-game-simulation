@@ -1,1 +1,2 @@
-# D-D-game-simulation
+# D&D-game-simulation
+In the following C++ code the goal is to simulate character creation in a Dungeons and Dragons game situation. There are four files for this project to be successful. The use of class in a seperate file, class implementation, a spell list, and the main functions. In the end, the user is given the opition to save the characters details or create new ones. ( homework assignment )
